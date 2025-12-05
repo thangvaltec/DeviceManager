@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "Hash": "VtL8jZsBa5Fp+t2aUb4D93e7vwpyCFedgpIFXGnlYAo=",
+  "Source": "DeviceApi",
+  "BasePath": "_content/DeviceApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "DeviceApi\\wwwroot",
+      "Source": "DeviceApi",
+      "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
+      "BasePath": "_content/DeviceApi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-D9qx6iqe.js",
+      "SourceId": "DeviceApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
+      "BasePath": "_content/DeviceApi",
+      "RelativePath": "assets/index-D9qx6iqe.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\assets\\index-D9qx6iqe.js"
+    },
+    {
+      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\index.html",
+      "SourceId": "DeviceApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
+      "BasePath": "_content/DeviceApi",
+      "RelativePath": "index.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\index.html"
+    }
+  ]
+}
