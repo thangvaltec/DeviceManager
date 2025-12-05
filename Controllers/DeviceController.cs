@@ -1,19 +1,11 @@
-using System;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using DeviceApi.Data;
 using DeviceApi.Models;
+using System;
+using System.Linq;
 
 namespace DeviceApi.Controllers
 {
-    public class UpdateDeviceRequest
-    {
-        public string SerialNo { get; set; } = "";
-        public int AuthMode { get; set; }
-        public string DeviceName { get; set; } = "";
-        public bool IsActive { get; set; }
-    }
-
     [Route("api/[controller]")]
     [ApiController]
     public class DeviceController : ControllerBase
@@ -25,39 +17,32 @@ namespace DeviceApi.Controllers
             _context = context;
         }
 
-        // 1) BodyCamera gọi: lấy AuthMode từ serialNo
+        // ==== BodyCamera 用：シリアルから認証モードを取得（なければ自動作成）====
+        // POST: /api/device/getAuthMode
         [HttpPost("getAuthMode")]
         public IActionResult GetAuthMode([FromBody] SerialRequest req)
         {
             if (req == null || string.IsNullOrWhiteSpace(req.SerialNo))
             {
-                return BadRequest(new { message = "serialNo is required" });
+                return BadRequest("SerialNo is required.");
             }
 
             var device = _context.Devices.FirstOrDefault(x => x.SerialNo == req.SerialNo);
 
             if (device == null)
             {
+                // 初回アクセスの場合、自動的にレコードを作成
                 device = new Device
                 {
                     SerialNo = req.SerialNo,
                     DeviceName = "Unknown",
-                    AuthMode = 0,
+                    AuthMode = 0,          // デフォルト: 顔認証
                     IsActive = true,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
 
                 _context.Devices.Add(device);
-                _context.SaveChanges();
-
-                _context.DeviceLogs.Add(new DeviceLog
-                {
-                    SerialNo = req.SerialNo,
-                    Action = "Device auto-created",
-                    CreatedAt = DateTime.Now
-                });
-
                 _context.SaveChanges();
             }
 
@@ -69,10 +54,12 @@ namespace DeviceApi.Controllers
             });
         }
 
+        // ====== Web 管理画面用：デバイス情報を更新 ======
+        // POST: /api/device/update
         [HttpPost("update")]
         public IActionResult UpdateDevice([FromBody] UpdateDeviceRequest req)
         {
-            if (string.IsNullOrWhiteSpace(req.SerialNo))
+            if (req == null || string.IsNullOrWhiteSpace(req.SerialNo))
             {
                 return BadRequest("SerialNo is required.");
             }
@@ -84,11 +71,10 @@ namespace DeviceApi.Controllers
                 return NotFound($"Device with SerialNo '{req.SerialNo}' not found.");
             }
 
-            // Cập nhật thông tin
             device.AuthMode = req.AuthMode;
             device.DeviceName = req.DeviceName;
             device.IsActive = req.IsActive;
-            device.UpdatedAt = DateTime.Now;   // nếu trong model có cột này
+            device.UpdatedAt = DateTime.Now;
 
             _context.SaveChanges();
 
@@ -100,87 +86,14 @@ namespace DeviceApi.Controllers
                 isActive = device.IsActive
             });
         }
+    }
 
-        // 2) GET /api/device ↁEdanh sách thiết bềE
-        [HttpGet]
-        public IActionResult GetAllDevices()
-        {
-            var list = _context.Devices
-                .OrderByDescending(d => d.Id)
-                .ToList();
-
-            return Ok(list);
-        }
-
-        // 3) POST /api/device ↁEthêm thiết bềE(quản lý từ web)
-        [HttpPost]
-        public IActionResult CreateDevice([FromBody] Device model)
-        {
-            if (string.IsNullOrWhiteSpace(model.SerialNo))
-            {
-                return BadRequest(new { message = "SerialNo is required" });
-            }
-
-            if (_context.Devices.Any(x => x.SerialNo == model.SerialNo))
-            {
-                return Conflict(new { message = "Device already exists" });
-            }
-
-            model.CreatedAt = DateTime.Now;
-            model.UpdatedAt = DateTime.Now;
-
-            _context.Devices.Add(model);
-            _context.SaveChanges();
-
-            _context.DeviceLogs.Add(new DeviceLog
-            {
-                SerialNo = model.SerialNo,
-                Action = "Device created manually",
-                CreatedAt = DateTime.Now
-            });
-            _context.SaveChanges();
-
-            return Ok(model);
-        }
-
-        // 4) PUT /api/device/{serialNo} ↁEupdate device (authMode, deviceName, isActive)
-        [HttpPut("{serialNo}")]
-        public IActionResult UpdateDevice(string serialNo, [FromBody] Device model)
-        {
-            var device = _context.Devices.FirstOrDefault(x => x.SerialNo == serialNo);
-            if (device == null)
-            {
-                return NotFound(new { message = "Device not found" });
-            }
-
-            device.DeviceName = model.DeviceName;
-            device.AuthMode = model.AuthMode;
-            device.IsActive = model.IsActive;
-            device.UpdatedAt = DateTime.Now;
-
-            _context.SaveChanges();
-
-            _context.DeviceLogs.Add(new DeviceLog
-            {
-                SerialNo = device.SerialNo,
-                Action = $"Device updated (AuthMode={model.AuthMode})",
-                CreatedAt = DateTime.Now
-            });
-            _context.SaveChanges();
-
-            return Ok(device);
-        }
-
-        // 5) GET /api/device/logs/{serialNo} ↁElog thay đổi
-        [HttpGet("logs/{serialNo}")]
-        public IActionResult GetLogs(string serialNo)
-        {
-            var logs = _context.DeviceLogs
-                .Where(x => x.SerialNo == serialNo)
-                .OrderByDescending(x => x.CreatedAt)
-                .ToList();
-
-            return Ok(logs);
-        }
+    // ==== Web 管理画面から送られてくる更新用リクエスト DTO ====
+    public class UpdateDeviceRequest
+    {
+        public string SerialNo { get; set; } = "";
+        public int AuthMode { get; set; }
+        public string DeviceName { get; set; } = "";
+        public bool IsActive { get; set; }
     }
 }
