@@ -22,6 +22,49 @@ namespace DeviceApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("DeviceApi.Models.AdminUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("admin_users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 12, 5, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PasswordHash = "39f8485ae66793496c7f4e437acfa60d3905653ea01ca155cf1b5d05446f3702",
+                            Role = "super_admin",
+                            Username = "admin"
+                        });
+                });
+
             modelBuilder.Entity("DeviceApi.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -35,6 +78,9 @@ namespace DeviceApi.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("DelFlg")
+                        .HasColumnType("bit");
 
                     b.Property<string>("DeviceName")
                         .IsRequired()

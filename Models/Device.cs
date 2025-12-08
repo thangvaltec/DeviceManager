@@ -18,6 +18,9 @@ namespace DeviceApi.Models
 
         public bool IsActive { get; set; } = true;
 
+        // Soft delete flag: false = active, true = deleted (hidden)
+        public bool DelFlg { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
