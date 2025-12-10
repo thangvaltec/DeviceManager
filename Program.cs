@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ===== Đăng ký service =====
+// サービス登録 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS cho frontend (Vite dev server)
+// フロントエンド（Vite開発サーバー）向けのCORS設定
 var allowedOrigins = new[]
 {
     "http://localhost:5173",
@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Đăng ký DbContext với ConnectionString
+// DbContextの登録（接続文字列を利用）
 builder.Services.AddDbContext<DeviceDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
@@ -34,7 +34,7 @@ builder.Services.AddDbContext<DeviceDbContext>(options =>
 
 var app = builder.Build();
 
-// ===== Pipeline xử lý HTTP =====
+// ===== HTTPパイプライン設定 =====
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -42,18 +42,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Không bắt buộc HTTPS trong môi trường dev nội bộ
+// 開発用の内部環境ではHTTPSを強制しない（必要なら下行を有効化）
 // app.UseHttpsRedirection();
 
-// ===== ① Thêm 2 dòng này để phục vụ file tĩnh (frontend) =====
-app.UseDefaultFiles();  // tự động tìm index.html trong wwwroot
-app.UseStaticFiles();   // cho phép trả file tĩnh từ wwwroot
-// ==========================================================
+// ===== 静的ファイル配信（フロントエンドビルド成果物） =====
+app.UseDefaultFiles();  // wwwroot 内の index.html を自動探索
+app.UseStaticFiles();   // wwwroot から静的ファイルを返却
+// ========================================================
 
-app.UseCors("FrontendCors"); // cho phép frontend gọi API
+app.UseCors("FrontendCors"); // フロントエンドからのAPI呼び出しを許可
 
 app.UseAuthorization();
 
-app.MapControllers();   // /api/... vẫn hoạt động như cũ
+app.MapControllers();   // /api/... エンドポイントを有効化
 
 app.Run();

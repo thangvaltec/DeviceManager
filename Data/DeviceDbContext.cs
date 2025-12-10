@@ -16,12 +16,12 @@ namespace DeviceApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Đặt tên bảng trong DB
+            // DB上のテーブル名を指定
             modelBuilder.Entity<Device>().ToTable("devices");
             modelBuilder.Entity<DeviceLog>().ToTable("device_logs");
             modelBuilder.Entity<AdminUser>().ToTable("admin_users");
 
-            // Seed tài khoản admin mặc định
+            // 既定の管理者アカウントをSeedデータとして投入
             modelBuilder.Entity<AdminUser>().HasData(new AdminUser
             {
                 Id = 1,

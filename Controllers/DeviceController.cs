@@ -1,11 +1,13 @@
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using DeviceApi.Data;
 using DeviceApi.Models;
 
 namespace DeviceApi.Controllers
 {
+    // デバイス更新用の入力DTO（BodyCameraからの更新リクエスト用）
     public class UpdateDeviceRequest
     {
         public string SerialNo { get; set; } = "";
@@ -14,24 +16,31 @@ namespace DeviceApi.Controllers
         public bool IsActive { get; set; }
     }
 
+    // デバイスの登録・更新・削除・ログ取得などを提供するAPIコントローラー
     [Route("api/[controller]")]
     [ApiController]
     public class DeviceController : ControllerBase
     {
         private readonly DeviceDbContext _context;
 
+        // DbContextをDIで受け取るコンストラクター
         public DeviceController(DeviceDbContext context)
         {
             _context = context;
         }
 
-        // 1) BodyCamera gọi: lấy AuthMode từ serialNo
+        // 1) BodyCameraから呼ばれ、serialNoで認証モードを取得（未登録なら自動登録）
         [HttpPost("getAuthMode")]
         public IActionResult GetAuthMode([FromBody] SerialRequest req)
         {
             if (req == null || string.IsNullOrWhiteSpace(req.SerialNo))
             {
-                return BadRequest(new { message = "serialNo is required" });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "serialNo は必須です。"
+                };
             }
 
             var device = _context.Devices.FirstOrDefault(x => x.SerialNo == req.SerialNo && !x.DelFlg);
@@ -69,26 +78,37 @@ namespace DeviceApi.Controllers
             });
         }
 
+        // 2) BodyCameraから設定を更新（serialNoをキーに上書き）
         [HttpPost("update")]
         public IActionResult UpdateDevice([FromBody] UpdateDeviceRequest req)
         {
             if (string.IsNullOrWhiteSpace(req.SerialNo))
             {
-                return BadRequest("SerialNo is required.");
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "SerialNo は必須です。"
+                };
             }
 
             var device = _context.Devices.FirstOrDefault(d => d.SerialNo == req.SerialNo);
 
             if (device == null)
             {
-                return NotFound($"Device with SerialNo '{req.SerialNo}' not found.");
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = $"SerialNo '{req.SerialNo}' のデバイスが見つかりません。"
+                };
             }
 
-            // Cập nhật thông tin
+            // 入力内容でデバイス情報を更新
             device.AuthMode = req.AuthMode;
             device.DeviceName = req.DeviceName;
             device.IsActive = req.IsActive;
-            device.UpdatedAt = DateTime.Now;   // nếu trong model có cột này
+            device.UpdatedAt = DateTime.Now;   // UpdatedAt列があれば更新日時を保存
 
             _context.SaveChanges();
 
@@ -101,7 +121,7 @@ namespace DeviceApi.Controllers
             });
         }
 
-        // 2) GET /api/device ↁEdanh sách thiết bềE
+        // 3) デバイス一覧を取得
         [HttpGet]
         public IActionResult GetAllDevices()
         {
@@ -113,18 +133,28 @@ namespace DeviceApi.Controllers
             return Ok(list);
         }
 
-        // 3) POST /api/device ↁEthêm thiết bềE(quản lý từ web)
+        // 4) 管理画面からデバイスを新規登録
         [HttpPost]
         public IActionResult CreateDevice([FromBody] Device model)
         {
             if (string.IsNullOrWhiteSpace(model.SerialNo))
             {
-                return BadRequest(new { message = "SerialNo is required" });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "SerialNo は必須です。"
+                };
             }
 
             if (_context.Devices.Any(x => x.SerialNo == model.SerialNo && !x.DelFlg))
             {
-                return Conflict(new { message = "デバイスは既に存在します" });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status409Conflict,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "デバイスは既に存在します"
+                };
             }
 
             model.CreatedAt = DateTime.Now;
@@ -144,14 +174,19 @@ namespace DeviceApi.Controllers
             return Ok(model);
         }
 
-        // 4) PUT /api/device/{serialNo} ↁEupdate device (authMode, deviceName, isActive)
+        // 5) 管理画面からデバイスを更新（authMode / deviceName / isActive）
         [HttpPut("{serialNo}")]
         public IActionResult UpdateDevice(string serialNo, [FromBody] Device model)
         {
             var device = _context.Devices.FirstOrDefault(x => x.SerialNo == serialNo && !x.DelFlg);
             if (device == null)
             {
-                return NotFound(new { message = "Device not found" });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "デバイスが見つかりません。"
+                };
             }
 
             device.DeviceName = model.DeviceName;
@@ -172,13 +207,19 @@ namespace DeviceApi.Controllers
             return Ok(device);
         }
 
+        // 6) デバイスを論理削除（DelFlgを立てて無効化）
         [HttpDelete("{serialNo}")]
         public IActionResult DeleteDevice(string serialNo)
         {
             var device = _context.Devices.FirstOrDefault(x => x.SerialNo == serialNo && !x.DelFlg);
             if (device == null)
             {
-                return NotFound(new { message = "Device not found" });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "デバイスが見つかりません。"
+                };
             }
 
             device.DelFlg = true;
@@ -194,10 +235,15 @@ namespace DeviceApi.Controllers
             });
             _context.SaveChanges();
 
-            return Ok(new { message = "Device marked as deleted" });
+            return new ContentResult
+            {
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "text/plain; charset=utf-8",
+                Content = "デバイスを削除しました。"
+            };
         }
 
-        // 5) GET /api/device/logs/{serialNo} ↁElog thay đổi
+        // 7) デバイス変更ログを取得
         [HttpGet("logs/{serialNo}")]
         public IActionResult GetLogs(string serialNo)
         {

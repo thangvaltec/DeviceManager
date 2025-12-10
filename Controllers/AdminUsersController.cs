@@ -2,21 +2,25 @@ using System.Security.Cryptography;
 using System.Text;
 using DeviceApi.Data;
 using DeviceApi.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeviceApi.Controllers
 {
+    // 管理者ユーザーの作成・更新・削除を行うAPIコントローラー
     [Route("api/[controller]")]
     [ApiController]
     public class AdminUsersController : ControllerBase
     {
         private readonly DeviceDbContext _context;
 
+        // DbContextをDIで受け取るコンストラクター
         public AdminUsersController(DeviceDbContext context)
         {
             _context = context;
         }
 
+        // 管理者ユーザーの一覧を取得
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -34,17 +38,28 @@ namespace DeviceApi.Controllers
             return Ok(users);
         }
 
+        // 管理者ユーザーを新規作成
         [HttpPost]
         public IActionResult Create([FromBody] CreateAdminUserRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
             {
-                return BadRequest(new { message = "Username and password are required." });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "ユーザー名とパスワードは必須です。"
+                };
             }
 
             if (_context.AdminUsers.Any(u => u.Username == request.Username))
             {
-                return Conflict(new { message = "Username already exists." });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status409Conflict,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "このユーザー名は既に使用されています。"
+                };
             }
 
             var user = new AdminUser
@@ -67,13 +82,19 @@ namespace DeviceApi.Controllers
             });
         }
 
+        // 管理者ユーザーを更新（ロールやパスワード）
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] UpdateAdminUserRequest request)
         {
             var user = _context.AdminUsers.FirstOrDefault(u => u.Id == id);
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "ユーザーが見つかりません。"
+                };
             }
 
             if (!string.IsNullOrWhiteSpace(request.Role))
@@ -97,26 +118,43 @@ namespace DeviceApi.Controllers
             });
         }
 
+        // 管理者ユーザーを削除（root admin は除外）
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var user = _context.AdminUsers.FirstOrDefault(u => u.Id == id);
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "ユーザーが見つかりません。"
+                };
             }
 
             if (user.Username.Equals("admin", StringComparison.OrdinalIgnoreCase))
             {
-                return BadRequest(new { message = "Cannot delete the root admin user." });
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "ルート管理者ユーザーは削除できません。"
+                };
             }
 
             _context.AdminUsers.Remove(user);
             _context.SaveChanges();
 
-            return Ok(new { message = "User deleted." });
+            return new ContentResult
+            {
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "text/plain; charset=utf-8",
+                Content = "ユーザーを削除しました。"
+            };
         }
 
+        // パスワードをSHA256でハッシュ化
         private static string ComputeSha256(string input)
         {
             using var sha = SHA256.Create();

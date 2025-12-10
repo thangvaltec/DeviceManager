@@ -144,3 +144,8 @@ C:\Users\thangpv\DeviceApi\obj\Debug\net8.0\DeviceApi.genruntimeconfig.cache
 C:\Users\thangpv\DeviceApi\obj\Debug\net8.0\ref\DeviceApi.dll
 C:\Users\thangpv\DeviceApi\bin\Debug\net8.0\DeviceApi.staticwebassets.runtime.json
 C:\Users\thangpv\DeviceApi\obj\Debug\net8.0\DeviceApi.sourcelink.json
+C:\Users\thangpv\DeviceApi\bin\Debug\net8.0\publish\web.config
+C:\Users\thangpv\DeviceApi\bin\Debug\net8.0\publish\appsettings.Development.json
+C:\Users\thangpv\DeviceApi\bin\Debug\net8.0\publish\appsettings.json
+C:\Users\thangpv\DeviceApi\bin\Debug\net8.0\publish\DeviceApi.deps.json
+C:\Users\thangpv\DeviceApi\bin\Debug\net8.0\publish\DeviceApi.runtimeconfig.json
