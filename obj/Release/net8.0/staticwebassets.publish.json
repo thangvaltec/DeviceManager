@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "+7NM8y1OXoMxzFX2cIGeLgDjTn/4UfgQ1APvhzPf68I=",
+  "Hash": "LYJEiwfKyT/k+H2kl10IapRETq15kMaVf/aVvodkuYQ=",
   "Source": "DeviceApi",
   "BasePath": "_content/DeviceApi",
   "Mode": "Default",
@@ -17,12 +17,12 @@
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-BiYlxN5l.js",
+      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-CHXlMM0D.js",
       "SourceId": "DeviceApi",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
       "BasePath": "_content/DeviceApi",
-      "RelativePath": "assets/index-BiYlxN5l.js",
+      "RelativePath": "assets/index-CHXlMM0D.js",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -33,15 +33,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\assets\\index-BiYlxN5l.js"
+      "OriginalItemSpec": "wwwroot\\assets\\index-CHXlMM0D.js"
     },
     {
-      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-C9TV_D8S.js",
+      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-DXJ49TYB.js",
       "SourceId": "DeviceApi",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
       "BasePath": "_content/DeviceApi",
-      "RelativePath": "assets/index-C9TV_D8S.js",
+      "RelativePath": "assets/index-DXJ49TYB.js",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -52,15 +52,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\assets\\index-C9TV_D8S.js"
+      "OriginalItemSpec": "wwwroot\\assets\\index-DXJ49TYB.js"
     },
     {
-      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-D9qx6iqe.js",
+      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-xzoTiYUL.js",
       "SourceId": "DeviceApi",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
       "BasePath": "_content/DeviceApi",
-      "RelativePath": "assets/index-D9qx6iqe.js",
+      "RelativePath": "assets/index-xzoTiYUL.js",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -71,45 +71,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\assets\\index-D9qx6iqe.js"
-    },
-    {
-      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-DyPlSThz.js",
-      "SourceId": "DeviceApi",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
-      "BasePath": "_content/DeviceApi",
-      "RelativePath": "assets/index-DyPlSThz.js",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\assets\\index-DyPlSThz.js"
-    },
-    {
-      "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-UwexYbn6.js",
-      "SourceId": "DeviceApi",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\",
-      "BasePath": "_content/DeviceApi",
-      "RelativePath": "assets/index-UwexYbn6.js",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\assets\\index-UwexYbn6.js"
+      "OriginalItemSpec": "wwwroot\\assets\\index-xzoTiYUL.js"
     },
     {
       "Identity": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\index.html",

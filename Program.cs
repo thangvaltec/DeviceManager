@@ -25,9 +25,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// DbContextの登録（接続文字列を利用）
+// DbContextの登録（PostgreSQLを使用）
 builder.Services.AddDbContext<DeviceDbContext>(options =>
-    options.UseSqlServer(
+    options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );

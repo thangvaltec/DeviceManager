@@ -53,8 +53,8 @@ namespace DeviceApi.Controllers
                     DeviceName = "Unknown",
                     AuthMode = 0,
                     IsActive = true,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
                 };
 
                 _context.Devices.Add(device);
@@ -64,10 +64,20 @@ namespace DeviceApi.Controllers
                 {
                     SerialNo = req.SerialNo,
                     Action = "Device auto-created",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 });
 
                 _context.SaveChanges();
+            }
+
+            if (!device.IsActive)
+            {
+                return new ContentResult
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    ContentType = "text/plain; charset=utf-8",
+                    Content = "このデバイスは無効化されています。"
+                };
             }
 
             return Ok(new
@@ -108,7 +118,7 @@ namespace DeviceApi.Controllers
             device.AuthMode = req.AuthMode;
             device.DeviceName = req.DeviceName;
             device.IsActive = req.IsActive;
-            device.UpdatedAt = DateTime.Now;   // UpdatedAt列があれば更新日時を保存
+            device.UpdatedAt = DateTime.UtcNow;   // UpdatedAt列があれば更新日時を保存
 
             _context.SaveChanges();
 
@@ -157,8 +167,8 @@ namespace DeviceApi.Controllers
                 };
             }
 
-            model.CreatedAt = DateTime.Now;
-            model.UpdatedAt = DateTime.Now;
+            model.CreatedAt = DateTime.UtcNow;
+            model.UpdatedAt = DateTime.UtcNow;
 
             _context.Devices.Add(model);
             _context.SaveChanges();
@@ -167,7 +177,7 @@ namespace DeviceApi.Controllers
             {
                 SerialNo = model.SerialNo,
                 Action = "Device created manually",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             });
             _context.SaveChanges();
 
@@ -192,7 +202,7 @@ namespace DeviceApi.Controllers
             device.DeviceName = model.DeviceName;
             device.AuthMode = model.AuthMode;
             device.IsActive = model.IsActive;
-            device.UpdatedAt = DateTime.Now;
+            device.UpdatedAt = DateTime.UtcNow;
 
             _context.SaveChanges();
 
@@ -200,7 +210,7 @@ namespace DeviceApi.Controllers
             {
                 SerialNo = device.SerialNo,
                 Action = $"Device updated (AuthMode={model.AuthMode})",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             });
             _context.SaveChanges();
 
@@ -224,14 +234,14 @@ namespace DeviceApi.Controllers
 
             device.DelFlg = true;
             device.IsActive = false;
-            device.UpdatedAt = DateTime.Now;
+            device.UpdatedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
             _context.DeviceLogs.Add(new DeviceLog
             {
                 SerialNo = device.SerialNo,
                 Action = "Device soft-deleted",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             });
             _context.SaveChanges();
 
