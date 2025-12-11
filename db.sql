@@ -1,4 +1,4 @@
-﻿
+﻿// EF Core Migrations History
 
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" varchar(150) NOT NULL,
