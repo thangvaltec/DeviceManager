@@ -1,35 +1,32 @@
 using System;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using DeviceApi.Data;
 using DeviceApi.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DeviceApi.Controllers
 {
-    // デバイス更新用の入力DTO（BodyCameraからの更新リクエスト用）
     public class UpdateDeviceRequest
     {
-        public string SerialNo { get; set; } = "";
+        public string SerialNo { get; set; } = string.Empty;
         public int AuthMode { get; set; }
-        public string DeviceName { get; set; } = "";
+        public string DeviceName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
     }
 
-    // デバイスの登録・更新・削除・ログ取得などを提供するAPIコントローラー
     [Route("api/[controller]")]
     [ApiController]
     public class DeviceController : ControllerBase
     {
         private readonly DeviceDbContext _context;
 
-        // DbContextをDIで受け取るコンストラクター
         public DeviceController(DeviceDbContext context)
         {
             _context = context;
         }
 
-        // 1) BodyCameraから呼ばれ、serialNoで認証モードを取得（未登録なら自動登録）
+        // 1) BodyCamera から認証モードを取得（未登録なら自動作成）
         [HttpPost("getAuthMode")]
         public IActionResult GetAuthMode([FromBody] SerialRequest req)
         {
@@ -63,7 +60,7 @@ namespace DeviceApi.Controllers
                 _context.DeviceLogs.Add(new DeviceLog
                 {
                     SerialNo = req.SerialNo,
-                    Action = "Device auto-created",
+                    Action = "デバイスを自動登録（未登録のため新規作成）",
                     CreatedAt = DateTime.UtcNow
                 });
 
@@ -88,7 +85,7 @@ namespace DeviceApi.Controllers
             });
         }
 
-        // 2) BodyCameraから設定を更新（serialNoをキーに上書き）
+        // 2) BodyCamera からの簡易更新（serialNo で上書き）
         [HttpPost("update")]
         public IActionResult UpdateDevice([FromBody] UpdateDeviceRequest req)
         {
@@ -114,12 +111,10 @@ namespace DeviceApi.Controllers
                 };
             }
 
-            // 入力内容でデバイス情報を更新
             device.AuthMode = req.AuthMode;
             device.DeviceName = req.DeviceName;
             device.IsActive = req.IsActive;
-            device.UpdatedAt = DateTime.UtcNow;   // UpdatedAt列があれば更新日時を保存
-
+            device.UpdatedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
             return Ok(new
@@ -131,7 +126,7 @@ namespace DeviceApi.Controllers
             });
         }
 
-        // 3) デバイス一覧を取得
+        // 3) デバイス一覧を取得（削除済みを除外）
         [HttpGet]
         public IActionResult GetAllDevices()
         {
@@ -143,7 +138,7 @@ namespace DeviceApi.Controllers
             return Ok(list);
         }
 
-        // 4) 管理画面からデバイスを新規登録
+        // 4) 管理画面からデバイス新規登録
         [HttpPost]
         public IActionResult CreateDevice([FromBody] Device model)
         {
@@ -163,7 +158,7 @@ namespace DeviceApi.Controllers
                 {
                     StatusCode = StatusCodes.Status409Conflict,
                     ContentType = "text/plain; charset=utf-8",
-                    Content = "デバイスは既に存在します"
+                    Content = "デバイスは既に存在します。"
                 };
             }
 
@@ -176,7 +171,7 @@ namespace DeviceApi.Controllers
             _context.DeviceLogs.Add(new DeviceLog
             {
                 SerialNo = model.SerialNo,
-                Action = "Device created manually",
+                Action = "デバイスを新規登録（手動）",
                 CreatedAt = DateTime.UtcNow
             });
             _context.SaveChanges();
@@ -184,7 +179,7 @@ namespace DeviceApi.Controllers
             return Ok(model);
         }
 
-        // 5) 管理画面からデバイスを更新（authMode / deviceName / isActive）
+        // 5) 管理画面からデバイス更新（authMode / deviceName / isActive）
         [HttpPut("{serialNo}")]
         public IActionResult UpdateDevice(string serialNo, [FromBody] Device model)
         {
@@ -209,7 +204,7 @@ namespace DeviceApi.Controllers
             _context.DeviceLogs.Add(new DeviceLog
             {
                 SerialNo = device.SerialNo,
-                Action = $"Device updated (AuthMode={model.AuthMode})",
+                Action = $"デバイスを更新（認証モード={GetAuthModeLabel(model.AuthMode)}）",
                 CreatedAt = DateTime.UtcNow
             });
             _context.SaveChanges();
@@ -217,7 +212,7 @@ namespace DeviceApi.Controllers
             return Ok(device);
         }
 
-        // 6) デバイスを論理削除（DelFlgを立てて無効化）
+        // 6) ソフト削除（DelFlg = true）
         [HttpDelete("{serialNo}")]
         public IActionResult DeleteDevice(string serialNo)
         {
@@ -240,7 +235,7 @@ namespace DeviceApi.Controllers
             _context.DeviceLogs.Add(new DeviceLog
             {
                 SerialNo = device.SerialNo,
-                Action = "Device soft-deleted",
+                Action = "デバイスを削除（ソフト削除）",
                 CreatedAt = DateTime.UtcNow
             });
             _context.SaveChanges();
@@ -249,11 +244,11 @@ namespace DeviceApi.Controllers
             {
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "text/plain; charset=utf-8",
-                Content = "デバイスを削除しました。"
+                Content = "デバイスを削除しました（ソフト削除）。"
             };
         }
 
-        // 7) デバイス変更ログを取得
+        // 7) デバイス変更履歴を取得
         [HttpGet("logs/{serialNo}")]
         public IActionResult GetLogs(string serialNo)
         {
@@ -263,6 +258,17 @@ namespace DeviceApi.Controllers
                 .ToList();
 
             return Ok(logs);
+        }
+
+        private static string GetAuthModeLabel(int authMode)
+        {
+            return authMode switch
+            {
+                0 => "顔認証",
+                1 => "静脈認証",
+                2 => "顔＋静脈（二要素）",
+                _ => $"不明 ({authMode})"
+            };
         }
     }
 }
