@@ -1,0 +1,37 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-CHXlMM0D.js",
+      "PackagePath": "staticwebassets\\assets\\index-CHXlMM0D.js"
+    },
+    {
+      "Id": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-DXJ49TYB.js",
+      "PackagePath": "staticwebassets\\assets\\index-DXJ49TYB.js"
+    },
+    {
+      "Id": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\assets\\index-xzoTiYUL.js",
+      "PackagePath": "staticwebassets\\assets\\index-xzoTiYUL.js"
+    },
+    {
+      "Id": "C:\\Users\\thangpv\\DeviceApi\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.DeviceApi.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.DeviceApi.props",
+      "PackagePath": "build\\DeviceApi.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.DeviceApi.props",
+      "PackagePath": "buildMultiTargeting\\DeviceApi.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.DeviceApi.props",
+      "PackagePath": "buildTransitive\\DeviceApi.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

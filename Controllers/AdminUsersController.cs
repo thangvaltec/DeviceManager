@@ -14,11 +14,54 @@ namespace DeviceApi.Controllers
     [ApiController]
     public class AdminUsersController : ControllerBase
     {
-        private readonly DeviceDbContext _context;
+        private readonly TenantDbContext _masterDb;
+        private readonly TenantDbContextFactory _factory;
 
-        public AdminUsersController(DeviceDbContext context)
+        public AdminUsersController(
+            TenantDbContext masterDb,
+            TenantDbContextFactory factory)
         {
-            _context = context;
+            _masterDb = masterDb;
+            _factory = factory;
+        }
+
+        // ★ マルチテナント対応：tenantCode からテナントDB用 DeviceDbContext を取得
+        private DeviceDbContext GetTenantDb()
+        {
+            // ① リクエストヘッダーまたはJWTから tenantCode を取得
+            var tenantCode = User.FindFirst("tenantCode")?.Value;
+            
+            // ② ヘッダーから取得を試みる（JWT未実装時の暫定対応）
+            if (string.IsNullOrWhiteSpace(tenantCode))
+            {
+                tenantCode = Request.Headers["X-Tenant-Code"].ToString();
+            }
+
+            // ③ クエリパラメーターから取得を試みる（デバッグ用）
+            if (string.IsNullOrWhiteSpace(tenantCode))
+            {
+                tenantCode = Request.Query["tenantCode"].ToString();
+            }
+
+            // ④ Cookie から取得を試みる（ログイン後の自動保存）
+            if (string.IsNullOrWhiteSpace(tenantCode))
+            {
+                Request.Cookies.TryGetValue("tenantCode", out tenantCode);
+            }
+            
+            if (string.IsNullOrWhiteSpace(tenantCode))
+                throw new Exception("tenantCode が JWT、ヘッダー(X-Tenant-Code)、クエリパラメータ(tenantCode)、または Cookie に含まれていません");
+
+            // ⑤ masterDB から接続先情報を取得
+            var tenant = _masterDb.Tenants.FirstOrDefault(t => t.TenantCode == tenantCode);
+            if (tenant == null)
+                throw new Exception("MasterDB にテナント情報がありません");
+
+            // ⑥ テナントDB用の接続文字列
+            string connStr = $"Host=localhost;Port=5432;" + $"Database={tenant.TenantCode};" + $"Username=postgres;Password=Valtec;SslMode=Disable;";
+
+            // ⑦ 動的に DeviceDbContext を生成
+            return _factory.Create(connStr);
         }
 
         public class CreateAdminUserRequest
@@ -34,10 +77,20 @@ namespace DeviceApi.Controllers
             public string? Password { get; set; }
         }
 
+        public class UpdateDeviceRequest
+        {
+            public string SerialNo { get; set; } = "";
+            public int AuthMode { get; set; }
+            public string DeviceName { get; set; } = "";
+            public bool IsActive { get; set; }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.AdminUsers
+            using var db = GetTenantDb();
+
+            var users = await db.AdminUsers
                 .OrderByDescending(u => u.Id)
                 .Select(u => new
                 {
@@ -54,12 +107,13 @@ namespace DeviceApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateAdminUserRequest request)
         {
+            using var db = GetTenantDb();
             if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
             {
                 return BadRequest("Username and password are required.");
             }
 
-            var exists = await _context.AdminUsers.AnyAsync(u => u.Username == request.Username);
+            var exists = await db.AdminUsers.AnyAsync(u => u.Username == request.Username);
             if (exists)
             {
                 return Conflict("User already exists.");
@@ -73,8 +127,8 @@ namespace DeviceApi.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.AdminUsers.Add(user);
-            await _context.SaveChangesAsync();
+            db.AdminUsers.Add(user);
+            await db.SaveChangesAsync();
 
             return Ok(new
             {
@@ -88,7 +142,8 @@ namespace DeviceApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateAdminUserRequest request)
         {
-            var user = await _context.AdminUsers.FindAsync(id);
+            using var db = GetTenantDb();
+            var user = await db.AdminUsers.FindAsync(id);
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -106,7 +161,7 @@ namespace DeviceApi.Controllers
                 user.PasswordHash = ComputeSha256Hash(request.Password);
             }
 
-            await _context.SaveChangesAsync();
+            await db.SaveChangesAsync();
 
             return Ok(new
             {
@@ -120,7 +175,8 @@ namespace DeviceApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.AdminUsers.FindAsync(id);
+            using var db = GetTenantDb();
+            var user = await db.AdminUsers.FindAsync(id);
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -131,8 +187,8 @@ namespace DeviceApi.Controllers
                 return BadRequest("Default admin user cannot be deleted.");
             }
 
-            _context.AdminUsers.Remove(user);
-            await _context.SaveChangesAsync();
+            db.AdminUsers.Remove(user);
+            await db.SaveChangesAsync();
 
             return NoContent();
         }
